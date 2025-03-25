@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text;
 using System.Xml.Linq;
@@ -40,6 +41,9 @@ namespace SmartMenuBot
         {
             string username = "";
 
+            List<string> taskList = new List<string>();
+
+
             while (true)
             {
                 var args = Array.Empty<string>();
@@ -59,6 +63,18 @@ namespace SmartMenuBot
                         EchoCommand(username, args);
                         break;
 
+                    case "/addTask":
+                        AddTaskCommand(username, taskList);
+                        break;
+
+                    case "/showTasks":
+                        ShowTasksCommand(taskList);
+                        break;
+                    
+                    case "/removeTask":
+                        RemoveTaskCommand(taskList);
+                        break;
+
                     case "/info":
                         InfoCommand();
                         break;
@@ -73,8 +89,6 @@ namespace SmartMenuBot
                 }
             }
         }
-
-
 
         static void StartCommand(ref string username)
         {
@@ -102,6 +116,81 @@ namespace SmartMenuBot
         static void HelpCommand(string username)
         {
             Console.WriteLine($"\n\r{GetAvailableBotCommands(username)}");
+        }
+
+        static void AddTaskCommand(string username, List<string> taskList)
+        {
+            string? input;
+            bool isUserAuthorized = !String.IsNullOrEmpty(username);
+
+            string userMessage = $"\n\r{(isUserAuthorized ? (username + ", заполните") : "Заполните")} список задач (/exit - для выхода)";
+            Console.WriteLine(userMessage);
+
+            while (true)
+            {
+                Console.Write("Наименование задачи: ");
+                input = Console.ReadLine();
+
+                if (input == "/exit")
+                    break;
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine("\n\rНаименование задачи не может быть пустым!");
+                    continue;
+                }
+
+                taskList.Add(input.Trim());
+            }
+        }
+
+        static void ShowTasksCommand(List<string> taskList)
+        {
+            if (taskList.Count == 0)
+            {
+                Console.WriteLine("\n\rСписок задач пока не заполнен");
+                return;
+            }
+
+            Console.WriteLine("\n\rСписок задач:");
+            ShowTasks(taskList);
+        }
+
+        static void RemoveTaskCommand(List<string> taskList)
+        {
+            int taskid;
+
+            if (taskList.Count == 0)
+            {
+                Console.WriteLine("\n\rСписок задач пока не заполнен");
+                return;
+            }
+
+            Console.WriteLine("\n\rСписок задач:");
+            ShowTasks(taskList);
+
+            Console.Write("\n\rВведите ID задачи для удаления: ");
+            string? input = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine("\n\rID задачи не может быть пустым!");
+                return;
+            }
+
+            if (!int.TryParse(input, out taskid))
+            {
+                Console.WriteLine("\n\rID задачи должен быть числом в диапазоне номеров задач!");
+                return;
+            }
+
+            if (taskid < 1 || taskid > taskList.Count)
+            {
+                Console.WriteLine("\n\rID задачи должен быть в допустимом диапазоне номеров задач!");
+                return;
+            }
+
+            taskList.RemoveAt(taskid-1);
         }
 
         static void EchoCommand(string username, string[] args)
@@ -150,12 +239,9 @@ namespace SmartMenuBot
         static string GetBotCommand(string username, ref string[] args)
         {
             string? input;
-            string botCommand;
-            string userMessage;
-
             bool isUserAuthorized = !String.IsNullOrEmpty(username);
 
-            userMessage = $"\n\r{(isUserAuthorized ? (username + ", для") : "Для")} продолжения работы укажите одну из доступных команд: ";
+            string userMessage = $"\n\r{(isUserAuthorized ? (username + ", для") : "Для")} продолжения работы укажите одну из доступных команд: ";
 
             while (true)
             {
@@ -175,10 +261,11 @@ namespace SmartMenuBot
             Array.Resize(ref args, length);
             Array.Copy(parsewords, 1, args, 0, length);
 
-            botCommand = parsewords[0];
+            string botCommand = parsewords[0];
 
             return botCommand;
         }
+
 
         static string GetAvailableBotCommands(string username = "")
         {
@@ -187,17 +274,20 @@ namespace SmartMenuBot
             msgStart =
                 """                           
                 Доступные команды:
-                /start * начало работы с ботом
-                /help  * справка по доступным командам
+                /start      * начало работы с ботом
+                /help       * справка по доступным командам
                 """;
 
-            msgMiddle = "\n\r/echo  * эхо команда";
+            msgMiddle = "\n\r/echo       * эхо команда";
 
             msgEnd =
                 $"""
                 
-                /info  * информация о версии
-                /exit  * завершение работы с ботом
+                /addTask    * добавление задач в список
+                /showTasks  * вывод списка задач
+                /removeTask * удаление задачи из списка              
+                /info       * информация о версии
+                /exit       * завершение работы с ботом
                 """;
             
             var strBuilder = new StringBuilder();
@@ -212,6 +302,15 @@ namespace SmartMenuBot
             return msgResult;
         }
 
+        static void ShowTasks(List<string> taskList)
+        {
+            int i = 0;
+            foreach (var item in taskList)
+            {
+                i++;
+                Console.Write($"Наименование задачи ID{i}: {item}\n\r");
+            }
+        }
 
         static void GetVerInfo(ref string version, ref DateTime creationDate)
         {
