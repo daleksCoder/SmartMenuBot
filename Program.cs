@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Reflection.Emit;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -11,25 +13,33 @@ namespace SmartMenuBot
     {
         static void Main()
         {
+            try
+            {
+                InitBot();
+                InterfaceUserCommandDialog();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("В приложении произошла непредвиденная ошибка:");
+                Console.WriteLine($"Тип: {ex.GetType()}");
+                Console.WriteLine($"Сообщение: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
 
-            DisplayWelcomeMessage();
-            
-            InterfaceUserCommandDialog();
+                if (ex.InnerException != null)
+                    Console.WriteLine($"InnerException: {ex.InnerException}");
+            }
         }
 
-
-        static void DisplayWelcomeMessage()
+        static void InitBot()
         {
-            string msgStart, msgMiddle, msgEnd, msgResult;
+            string msgStart, msgEnd, msgResult;
 
             msgStart = "Привет! Добро пожаловать в систему управления обогревом загородного дома!\n\r";
-            msgMiddle = $"\n\r{GetAvailableBotCommands()}\n\r";
-            msgEnd = "\n\rДля начала работы рекомендую авторизоваться с помощью команды /start\n\r";
+            msgEnd = $"\n\r{GetAvailableBotCommands()}\n\r";
 
             var strBuilder = new StringBuilder();
 
             strBuilder.Append(msgStart);
-            strBuilder.Append(msgMiddle);
             strBuilder.Append(msgEnd);
 
             msgResult = strBuilder.ToString();
@@ -41,51 +51,69 @@ namespace SmartMenuBot
         {
             string username = "";
 
-            List<string> taskList = new List<string>();
+            int taskCountLimit = InitTaskCountLimit();
 
+            int taskLengthLimit = InitTaskLengthLimit();
+
+            List<string> taskList = new List<string>();
 
             while (true)
             {
                 var args = Array.Empty<string>();
                 string botCommand = GetBotCommand(username, ref args);
 
-                switch (botCommand)
+                try
                 {
-                    case "/start":
-                        StartCommand(ref username);
-                        break;
+                    switch (botCommand)
+                    {
+                        case "/start":
+                            StartCommand(ref username);
+                            break;
 
-                    case "/help":
-                        HelpCommand(username);
-                        break;
+                        case "/help":
+                            HelpCommand(username);
+                            break;
 
-                    case "/echo":
-                        EchoCommand(username, args);
-                        break;
+                        case "/echo":
+                            EchoCommand(username, args);
+                            break;
 
-                    case "/addTask":
-                        AddTaskCommand(username, taskList);
-                        break;
+                        case "/addtask":
+                            AddTaskCommand(username, taskList, taskCountLimit, taskLengthLimit);
+                            break;
 
-                    case "/showTasks":
-                        ShowTasksCommand(taskList);
-                        break;
-                    
-                    case "/removeTask":
-                        RemoveTaskCommand(taskList);
-                        break;
+                        case "/showtasks":
+                            ShowTasksCommand(taskList);
+                            break;
 
-                    case "/info":
-                        InfoCommand();
-                        break;
+                        case "/removetask":
+                            RemoveTaskCommand(taskList);
+                            break;
 
-                    case "/exit":
-                        ExitCommand();
-                        return;
+                        case "/info":
+                            InfoCommand();
+                            break;
 
-                    default:
-                        UnknownCommand();
-                        break;
+                        case "/exit":
+                            ExitCommand();
+                            return;
+
+                        default:
+                            UnknownCommand();
+                            break;
+                    }
+                }
+                catch (TaskCountLimitException exc)
+                {
+                    Console.WriteLine(exc.Message);
+                }
+                catch (TaskLengthLimitException exc)
+                {
+                    Console.WriteLine(exc.Message);
+                }
+                catch (DuplicateTaskException exc)
+                {
+                    Console.WriteLine(exc.Message);
                 }
             }
         }
@@ -118,9 +146,8 @@ namespace SmartMenuBot
             Console.WriteLine($"\n\r{GetAvailableBotCommands(username)}");
         }
 
-        static void AddTaskCommand(string username, List<string> taskList)
+        static void AddTaskCommand(string username, List<string> taskList, int taskCountLimit, int taskLengthLimit)
         {
-            string? input;
             bool isUserAuthorized = !String.IsNullOrEmpty(username);
 
             string userMessage = $"\n\r{(isUserAuthorized ? (username + ", заполните") : "Заполните")} список задач (/exit - для выхода)";
@@ -129,18 +156,32 @@ namespace SmartMenuBot
             while (true)
             {
                 Console.Write("Наименование задачи: ");
-                input = Console.ReadLine();
+                string? input = Console.ReadLine();
 
                 if (input == "/exit")
                     break;
 
-                if (string.IsNullOrWhiteSpace(input))
+                try
                 {
-                    Console.WriteLine("\n\rНаименование задачи не может быть пустым!");
+                    ValidateString(input);
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine(ex.Message);
                     continue;
                 }
 
-                taskList.Add(input.Trim());
+                if (taskList.Count == taskCountLimit)
+                    throw new TaskCountLimitException(taskCountLimit);
+
+                string trimmedInput = input!.Trim();
+                if (trimmedInput.Length > taskLengthLimit)
+                    throw new TaskLengthLimitException(trimmedInput.Length, taskLengthLimit);
+
+                if (taskList.Contains(trimmedInput))
+                    throw new DuplicateTaskException(trimmedInput);
+
+                taskList.Add(trimmedInput);
             }
         }
 
@@ -261,11 +302,10 @@ namespace SmartMenuBot
             Array.Resize(ref args, length);
             Array.Copy(parsewords, 1, args, 0, length);
 
-            string botCommand = parsewords[0];
+            string botCommand = parsewords[0].ToLower();
 
             return botCommand;
         }
-
 
         static string GetAvailableBotCommands(string username = "")
         {
@@ -316,6 +356,60 @@ namespace SmartMenuBot
         {
             version = "1.2.3";
             creationDate = new(2025, 3, 1);
+        }
+
+
+        static int InitTaskCountLimit()
+        {
+            while (true)
+            {
+                Console.Write("\n\rВведите максимально допустимое количество задач: ");
+                string? input = Console.ReadLine();
+
+                try
+                {
+                    return ParseAndValidateInt(input, 1, 100);
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        static int InitTaskLengthLimit()
+        {
+            while (true)
+            {
+                Console.Write("\n\rВведите максимально допустимую длину задачи: ");
+                string? input = Console.ReadLine();
+
+                try
+                {
+                    return ParseAndValidateInt(input, 1, 100);
+                }
+                catch (ArgumentException exc)
+                {
+                    Console.WriteLine(exc.Message);
+                }
+            }
+        }
+
+        static int ParseAndValidateInt(string? str, int min, int max)
+        {
+            if (!int.TryParse(str, out int result))
+                throw new ArgumentException($"\nВведите корректное целое число в диапазоне от {min} до {max}");
+
+            if (result < min || result > max)
+                throw new ArgumentException($"\nЧисло должно быть в диапазоне от {min} до {max}");
+
+            return result;
+        }
+
+        static void ValidateString(string? str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                throw new ArgumentException("\n\rНаименование задачи не может быть пустым");
         }
     }
 }
