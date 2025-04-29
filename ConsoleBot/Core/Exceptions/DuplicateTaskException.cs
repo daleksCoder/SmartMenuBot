@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SmartMenuBot
+namespace SmartMenuBot.Core.Exceptions
 {
     public class DuplicateTaskException : Exception
     {
         public DuplicateTaskException(string task)
-            : base($"Задача ‘{task}’ уже существует")
+            : base($"Задача \"{task}\" уже существует")
         {
         }
     }

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartMenuBot", "SmartMenuBot.csproj", "{93D94834-3074-4003-A622-E5C0428A8208}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartMenuBot", "ConsoleBot\SmartMenuBot.csproj", "{06F3DB1C-4A3B-4507-987E-1F9D1E87C32B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Otus.ToDoList.ConsoleBot", "Otus.ToDoList.ConsoleBot\Otus.ToDoList.ConsoleBot.csproj", "{269091CF-F7A6-4802-AC5A-A9B6626F13D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{93D94834-3074-4003-A622-E5C0428A8208}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93D94834-3074-4003-A622-E5C0428A8208}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93D94834-3074-4003-A622-E5C0428A8208}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93D94834-3074-4003-A622-E5C0428A8208}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06F3DB1C-4A3B-4507-987E-1F9D1E87C32B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06F3DB1C-4A3B-4507-987E-1F9D1E87C32B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06F3DB1C-4A3B-4507-987E-1F9D1E87C32B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06F3DB1C-4A3B-4507-987E-1F9D1E87C32B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{269091CF-F7A6-4802-AC5A-A9B6626F13D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{269091CF-F7A6-4802-AC5A-A9B6626F13D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{269091CF-F7A6-4802-AC5A-A9B6626F13D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{269091CF-F7A6-4802-AC5A-A9B6626F13D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
