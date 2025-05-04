@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using SmartMenuBot.Core.Entities;
 
-namespace SmartMenuBot.Core.Services
+namespace SmartMenuBot.Core.Services.Interfaces
 {
-    public interface IUserService : IBotServiceProvider
+    public interface IUserService
     {
         ToDoUser RegisterUser(long telegramUserId, string? telegramUserName);
+
         ToDoUser? GetUser(long telegramUserId);
     }
 }

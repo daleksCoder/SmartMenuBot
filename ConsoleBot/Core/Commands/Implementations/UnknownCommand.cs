@@ -5,13 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using SmartMenuBot.Infrastructure.TelegramBot;
+using SmartMenuBot.Core.Commands.Interfaces;
+using SmartMenuBot.TelegramBot;
 
-namespace SmartMenuBot.Core.Commands
+namespace SmartMenuBot.Core.Commands.Implementations
 {
-    public class UnknownCommand : IBotCommand
+    public class UnknownCommand(ITelegramBotClient botClient) : IBotCommand
     {
         public string CommandText => string.Empty;
+
+        private ITelegramBotClient BotClient { get; } = botClient;
 
         public bool CanExecute(CommandContext context)
         {
@@ -21,7 +24,7 @@ namespace SmartMenuBot.Core.Commands
 
         public void Execute(CommandContext context)
         {
-            context.BotClient.SendMessage(context.Update.Message.Chat, $"\nНеизвестная команда");
+            BotClient.SendMessage(context.Update.Message.Chat, $"\nНеизвестная команда");
         }
     }
 }

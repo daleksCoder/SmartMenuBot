@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot.Types;
 using Otus.ToDoList.ConsoleBot;
-using SmartMenuBot.Infrastructure.TelegramBot;
+using SmartMenuBot.TelegramBot;
 
-namespace SmartMenuBot.Core.Commands
+namespace SmartMenuBot.Core.Commands.Interfaces
 {
     public interface IBotCommand
     {

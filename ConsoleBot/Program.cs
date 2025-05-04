@@ -6,10 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Otus.ToDoList.ConsoleBot;
-using SmartMenuBot.Core.Commands;
 using SmartMenuBot.Core.Exceptions;
-using SmartMenuBot.Infrastructure.TelegramBot;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Extensions.DependencyInjection;
+using SmartMenuBot.Core.Commands.Interfaces;
+using SmartMenuBot.Core.Commands.Implementations;
+using SmartMenuBot.TelegramBot;
+using SmartMenuBot.Core.Services.Interfaces;
+using SmartMenuBot.Core.Services.Domain;
+using SmartMenuBot.Core.Services.Managers;
+using SmartMenuBot.Core.Services.Infrastructure;
 
 namespace SmartMenuBot
 {
@@ -19,21 +25,31 @@ namespace SmartMenuBot
         {
             try
             {
-                var commands = new List<IBotCommand>
-                {
-                new StartCommand(),
-                new AddTaskCommand(),
-                new CompleteTaskCommand(),
-                new HelpCommand(),
-                new RemoveTaskCommand(),
-                new ShowTasksCommand(),
-                new ShowAllTasksCommand(),
-                new InfoCommand(),
-                new ExitCommand()
-                };                
+                var services = new ServiceCollection();
 
-                var handler = new UpdateHandler(commands);
-                var botClient = new ConsoleBotClient();
+                services.AddSingleton<IUserService, UserService>();
+                services.AddSingleton<IToDoService, ToDoService>();                
+
+                services.AddSingleton<ILimitsInputProvider, ConsoleLimitsInput>();
+                services.AddSingleton<ITaskLimitsManager  , TaskLimitsManager>();
+
+                services.AddSingleton<IBotCommand, StartCommand>();
+                services.AddSingleton<IBotCommand, HelpCommand>();
+                services.AddSingleton<IBotCommand, AddTaskCommand>();
+                services.AddSingleton<IBotCommand, CompleteTaskCommand>();                
+                services.AddSingleton<IBotCommand, RemoveTaskCommand>();
+                services.AddSingleton<IBotCommand, ShowTasksCommand>();
+                services.AddSingleton<IBotCommand, ShowAllTasksCommand>();
+                services.AddSingleton<IBotCommand, InfoCommand>();
+
+                services.AddSingleton<UpdateHandler>();
+                services.AddSingleton<ITelegramBotClient, ConsoleBotClient>();
+
+                var serviceProvider = services.BuildServiceProvider();
+
+                var handler   = serviceProvider.GetRequiredService<UpdateHandler>();
+                var botClient = serviceProvider.GetRequiredService<ITelegramBotClient>();                
+
                 botClient.StartReceiving(handler);
             }
             catch (Exception ex)

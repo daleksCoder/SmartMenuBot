@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SmartMenuBot.Core.Entities;
+using SmartMenuBot.Core.Services.Interfaces;
 
-namespace SmartMenuBot.Core.Services
+namespace SmartMenuBot.Core.Services.Domain
 {
     public class UserService : IUserService
     {

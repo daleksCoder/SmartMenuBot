@@ -5,13 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using SmartMenuBot.Infrastructure.TelegramBot;
+using SmartMenuBot.Core.Commands.Interfaces;
+using SmartMenuBot.TelegramBot;
 
-namespace SmartMenuBot.Core.Commands
+namespace SmartMenuBot.Core.Commands.Implementations
 {
-    public class HelpCommand : IBotCommand
+    public class HelpCommand(ITelegramBotClient botClient) : IBotCommand
     {
         public string CommandText => "/help";
+
+        private ITelegramBotClient BotClient { get; } = botClient;
 
         public bool CanExecute(CommandContext context)
         {
@@ -21,7 +24,7 @@ namespace SmartMenuBot.Core.Commands
 
         public void Execute(CommandContext context)
         {
-            context.BotClient.SendMessage(context.Update.Message.Chat, $"\n\r{GetAvailableBotCommands()}");
+            BotClient.SendMessage(context.Update.Message.Chat, $"\n{GetAvailableBotCommands()}");
         }
 
         private static string GetAvailableBotCommands()
@@ -37,7 +40,6 @@ namespace SmartMenuBot.Core.Commands
                 /completeTask * завершение задачи                              
                 /removeTask   * удаление задачи из списка              
                 /info         * информация о версии
-                /exit         * завершение работы с ботом
                 """;
 
             return commandList;

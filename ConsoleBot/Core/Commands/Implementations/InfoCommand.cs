@@ -5,14 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using SmartMenuBot.Core.Services;
-using SmartMenuBot.Infrastructure.TelegramBot;
+using SmartMenuBot.Core.Commands.Interfaces;
+using SmartMenuBot.Core.Services.Domain;
+using SmartMenuBot.TelegramBot;
 
-namespace SmartMenuBot.Core.Commands
+namespace SmartMenuBot.Core.Commands.Implementations
 {
-    public class InfoCommand : IBotCommand
+    public class InfoCommand(ITelegramBotClient botClient) : IBotCommand
     {
         public string CommandText => "/info";
+
+        private ITelegramBotClient BotClient { get; } = botClient;
 
         public bool CanExecute(CommandContext context)
         {
@@ -23,7 +26,7 @@ namespace SmartMenuBot.Core.Commands
         public void Execute(CommandContext context)
         {
             VersionInfoService.GetVersionInfo(out string version, out DateTime creationDate);
-            context.BotClient.SendMessage(context.Update.Message.Chat, $"System version: {version}, created on: {creationDate:dd.MM.yyyy}");
+            BotClient.SendMessage(context.Update.Message.Chat, $"System version: {version}, created on: {creationDate:dd.MM.yyyy}");
         }
     }
 }

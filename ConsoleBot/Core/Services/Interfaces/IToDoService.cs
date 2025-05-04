@@ -7,17 +7,18 @@ using Otus.ToDoList.ConsoleBot.Types;
 using Otus.ToDoList.ConsoleBot;
 using SmartMenuBot.Core.Entities;
 
-namespace SmartMenuBot.Core.Services
+namespace SmartMenuBot.Core.Services.Interfaces
 {
-    public interface IToDoService : IBotServiceProvider
+    public interface IToDoService
     {
-        void ToDoServiceInit(ITelegramBotClient botClient, Update update);
         IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
+
         IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
-        int GetActiveCountByUserId(Guid userId);
-        int GetAllCountByUserId(Guid userId);
+
         ToDoItem Add(ToDoUser user, string name);
+
         void MarkCompleted(Guid id);
+
         void Delete(Guid id);
     }
 }
