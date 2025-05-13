@@ -12,8 +12,6 @@ namespace SmartMenuBot.Core.Services.Infrastructure
 {
     public class ConsoleLimitsInput(ITelegramBotClient botClient) : ILimitsInputProvider
     {
-        private ITelegramBotClient BotClient { get; } = botClient;
-
         public TaskLimits GetLimitsFromUser(Update update)
         {
             int count = GetValidatedInput(
@@ -31,7 +29,7 @@ namespace SmartMenuBot.Core.Services.Infrastructure
         {
             while (true)
             {
-                BotClient.SendMessage(update.Message.Chat, prompt);
+                botClient.SendMessage(update.Message.Chat, prompt);
                 string? input = Console.ReadLine();
 
                 try

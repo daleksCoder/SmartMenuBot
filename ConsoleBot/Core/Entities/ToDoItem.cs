@@ -15,8 +15,8 @@ namespace SmartMenuBot.Core.Entities
     public class ToDoItem(ToDoUser user, string name)
     {
         public Guid Id { get; } = Guid.NewGuid();
-        public ToDoUser User { get; set; } = user ?? throw new ArgumentNullException(nameof(user));
-        public string Name { get; set; } = name ?? throw new ArgumentNullException(nameof(name));
+        public ToDoUser User { get; } = user ?? throw new ArgumentNullException(nameof(user));
+        public string Name { get; } = name ?? throw new ArgumentNullException(nameof(name));
         public DateTime CreatedAt { get; } = DateTime.UtcNow;
         public ToDoItemState State { get; private set; } = ToDoItemState.Active;
         public DateTime? StateChangedAt { get; private set; }

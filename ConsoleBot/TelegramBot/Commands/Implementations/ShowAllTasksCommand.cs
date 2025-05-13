@@ -1,27 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using SmartMenuBot.Core.Commands.Interfaces;
+using Otus.ToDoList.ConsoleBot;
 using SmartMenuBot.Core.Entities;
 using SmartMenuBot.Core.Services.Interfaces;
-using SmartMenuBot.TelegramBot;
+using SmartMenuBot.TelegramBot.Commands;
+using SmartMenuBot.TelegramBot.Commands.Interfaces;
 
-namespace SmartMenuBot.Core.Commands.Implementations
+namespace SmartMenuBot.TelegramBot.Commands.Implementations
 {
-    public class ShowTasksCommand(ITelegramBotClient botClient, IUserService userService, IToDoService toDoService) : IBotCommand
+    public class ShowAllTasksCommand(ITelegramBotClient botClient, IUserService userService, IToDoService toDoService) : IBotCommand
     {
-        public string CommandText => "/showtasks";
-
-        private ITelegramBotClient BotClient { get; } = botClient;
-
-        private readonly IUserService _userServiceInstance = userService;
-
-        private readonly IToDoService _toDoServiceInstance = toDoService;
+        public string CommandText => "/showalltasks";
 
         public bool CanExecute(CommandContext context)
         {
@@ -31,24 +24,24 @@ namespace SmartMenuBot.Core.Commands.Implementations
 
         public void Execute(CommandContext context)
         {
-            var existingUser = _userServiceInstance.GetUser(context.Update.Message.From.Id);
+            var existingUser = userService.GetUser(context.Update.Message.From.Id);
             if (existingUser == null)
             {
-                BotClient.SendMessage(
+                botClient.SendMessage(
                     context.Update.Message.Chat,
                     "\nДля использования этой функции необходимо авторизоваться командой /start"
                 );
                 return;
             }
 
-            int taskListCount = _toDoServiceInstance.GetActiveByUserId(existingUser.UserId).Count;
+            int taskListCount = toDoService.GetAllByUserId(existingUser.UserId).Count;
             if (taskListCount == 0)
             {
-                BotClient.SendMessage(context.Update.Message.Chat, $"\nСписок задач пуст");
+                botClient.SendMessage(context.Update.Message.Chat, $"\nСписок задач пуст");
                 return;
             }
 
-            var taskList = _toDoServiceInstance.GetActiveByUserId(existingUser.UserId);
+            var taskList = toDoService.GetAllByUserId(existingUser.UserId);
             ShowTasks(context.Update, taskList);
         }
 
@@ -58,7 +51,7 @@ namespace SmartMenuBot.Core.Commands.Implementations
             foreach (var item in taskList)
             {
                 i++;
-                BotClient.SendMessage(update.Message.Chat, $"Задача #{i}: \"{item.Name}\" - {item.CreatedAt} - {item.Id}\n");
+                botClient.SendMessage(update.Message.Chat, $"Задача #{i}: {item.State} \"{item.Name}\" - {item.CreatedAt} - {item.Id}\n");
             }
         }
     }

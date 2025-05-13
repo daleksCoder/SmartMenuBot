@@ -20,5 +20,7 @@ namespace SmartMenuBot.Core.Services.Interfaces
         void MarkCompleted(Guid id);
 
         void Delete(Guid id);
+
+        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
     }
 }
