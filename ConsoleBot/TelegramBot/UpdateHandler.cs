@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using SmartMenuBot.Core.Commands;
-using SmartMenuBot.Core.Commands.Interfaces;
-using SmartMenuBot.Core.Commands.Implementations;
 using SmartMenuBot.Core.Services;
+using SmartMenuBot.TelegramBot.Commands;
+using SmartMenuBot.TelegramBot.Commands.Interfaces;
+using SmartMenuBot.TelegramBot.Commands.Implementations;
 
 namespace SmartMenuBot.TelegramBot
 {

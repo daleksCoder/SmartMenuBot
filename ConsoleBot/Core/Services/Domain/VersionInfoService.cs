@@ -10,8 +10,8 @@ namespace SmartMenuBot.Core.Services.Domain
     {
         public static void GetVersionInfo(out string version, out DateTime creationDate)
         {
-            version = "2.0.1";
-            creationDate = new DateTime(2025, 5, 1);
+            version = "2.0.2";
+            creationDate = new DateTime(2025, 5, 10);
         }
     }
 }

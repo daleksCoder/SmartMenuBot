@@ -9,13 +9,15 @@ using Otus.ToDoList.ConsoleBot;
 using SmartMenuBot.Core.Exceptions;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Extensions.DependencyInjection;
-using SmartMenuBot.Core.Commands.Interfaces;
-using SmartMenuBot.Core.Commands.Implementations;
 using SmartMenuBot.TelegramBot;
 using SmartMenuBot.Core.Services.Interfaces;
 using SmartMenuBot.Core.Services.Domain;
 using SmartMenuBot.Core.Services.Managers;
 using SmartMenuBot.Core.Services.Infrastructure;
+using SmartMenuBot.Core.DataAccess;
+using SmartMenuBot.Infrastructure.DataAccess;
+using SmartMenuBot.TelegramBot.Commands.Implementations;
+using SmartMenuBot.TelegramBot.Commands.Interfaces;
 
 namespace SmartMenuBot
 {
@@ -27,8 +29,13 @@ namespace SmartMenuBot
             {
                 var services = new ServiceCollection();
 
+                services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+                services.AddSingleton<IToDoRepository, InMemoryToDoRepository>();
+
                 services.AddSingleton<IUserService, UserService>();
-                services.AddSingleton<IToDoService, ToDoService>();                
+                services.AddSingleton<IToDoService, ToDoService>();
+
+                services.AddSingleton<IToDoReportService, ToDoReportService>();
 
                 services.AddSingleton<ILimitsInputProvider, ConsoleLimitsInput>();
                 services.AddSingleton<ITaskLimitsManager  , TaskLimitsManager>();
@@ -40,6 +47,8 @@ namespace SmartMenuBot
                 services.AddSingleton<IBotCommand, RemoveTaskCommand>();
                 services.AddSingleton<IBotCommand, ShowTasksCommand>();
                 services.AddSingleton<IBotCommand, ShowAllTasksCommand>();
+                services.AddSingleton<IBotCommand, ReportCommand>();
+                services.AddSingleton<IBotCommand, FindCommand>();
                 services.AddSingleton<IBotCommand, InfoCommand>();
 
                 services.AddSingleton<UpdateHandler>();

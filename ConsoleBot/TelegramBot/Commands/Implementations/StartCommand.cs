@@ -5,21 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using SmartMenuBot.Core.Commands.Interfaces;
 using SmartMenuBot.Core.Services.Interfaces;
 using SmartMenuBot.TelegramBot;
+using SmartMenuBot.TelegramBot.Commands;
+using SmartMenuBot.TelegramBot.Commands.Interfaces;
 
-namespace SmartMenuBot.Core.Commands.Implementations
+namespace SmartMenuBot.TelegramBot.Commands.Implementations
 {
     public class StartCommand(ITelegramBotClient botClient, IUserService userService, ITaskLimitsManager limitsManager) : IBotCommand
     {
         public string CommandText => "/start";
-
-        private ITelegramBotClient BotClient { get; } = botClient;
-
-        private readonly IUserService _userServiceInstance = userService;
-
-        private readonly ITaskLimitsManager _limitsManager = limitsManager;
 
         public bool CanExecute(CommandContext context)
         {
@@ -29,10 +24,10 @@ namespace SmartMenuBot.Core.Commands.Implementations
 
         public void Execute(CommandContext context)
         {
-            var existingUser = _userServiceInstance.GetUser(context.Update.Message.From.Id);
+            var existingUser = userService.GetUser(context.Update.Message.From.Id);
             if (existingUser != null)
             {
-                BotClient.SendMessage(
+                botClient.SendMessage(
                     context.Update.Message.Chat,
                     "\nВы уже авторизовались ранее"
                 );
@@ -40,14 +35,14 @@ namespace SmartMenuBot.Core.Commands.Implementations
             }
 
             var newUser = context.Update.Message.From;
-            _userServiceInstance.RegisterUser(newUser.Id, newUser.Username);
+            userService.RegisterUser(newUser.Id, newUser.Username);
 
-            BotClient.SendMessage(
+            botClient.SendMessage(
                 context.Update.Message.Chat,
                 "Добро пожаловать в систему управления обогревом загородного дома!\n"
             );
 
-            _limitsManager.TryInitializeFromUserInput(context.Update);
+            limitsManager.TryInitializeFromUserInput(context.Update);
         }
     }
 }

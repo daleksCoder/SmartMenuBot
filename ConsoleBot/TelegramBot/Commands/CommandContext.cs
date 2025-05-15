@@ -8,7 +8,7 @@ using Otus.ToDoList.ConsoleBot;
 using SmartMenuBot.Core.Services;
 using SmartMenuBot.TelegramBot;
 
-namespace SmartMenuBot.Core.Commands
+namespace SmartMenuBot.TelegramBot.Commands
 {
     public class CommandContext(Update update)
     {
