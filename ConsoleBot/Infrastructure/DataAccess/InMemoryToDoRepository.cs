@@ -22,9 +22,7 @@ namespace SmartMenuBot.Infrastructure.DataAccess
 
         public int CountActive(Guid userId)
         {
-            return _items.Where(item => item.User.UserId == userId &&
-                                     item.State == ToDoItemState.Active)
-                       .ToList().Count;
+            return GetActiveByUserId(userId).Count;
         }
 
         public void Delete(Guid id)
@@ -67,7 +65,12 @@ namespace SmartMenuBot.Infrastructure.DataAccess
 
         public void Update(ToDoItem item)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(item);
+
+            var existingItem = Get(item.Id) ?? throw new EntityNotFoundException(item.Id, "Задача");
+
+            var index = _items.IndexOf(existingItem);
+            _items[index] = item;
         }
     }
 }
